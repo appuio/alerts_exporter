@@ -24,6 +24,8 @@ type AlertsCollector struct {
 	API *client.AlertmanagerAPI
 
 	WithInhibited, WithSilenced, WithUnprocessed, WithActive *bool
+
+	Filters []string
 }
 
 var _ prometheus.Collector = &AlertsCollector{}
@@ -37,7 +39,8 @@ func (o *AlertsCollector) Collect(ch chan<- prometheus.Metric) {
 		WithActive(o.WithActive).
 		WithSilenced(o.WithSilenced).
 		WithUnprocessed(o.WithUnprocessed).
-		WithInhibited(o.WithInhibited)
+		WithInhibited(o.WithInhibited).
+		WithFilter(o.Filters)
 
 	as, err := o.API.Alert.GetAlerts(p)
 
@@ -48,7 +51,16 @@ func (o *AlertsCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, a := range as.Payload {
-		a.Labels["_status"] = *a.Status.State
+		if a.Status.State != nil {
+			a.Labels["_alerts_exporter_alert_status"] = *a.Status.State
+		}
+		if len(a.Status.InhibitedBy) > 0 {
+			a.Labels["_alerts_exporter_alert_inhibited_by"] = strings.Join(a.Status.InhibitedBy, ",")
+		}
+		if len(a.Status.SilencedBy) > 0 {
+			a.Labels["_alerts_exporter_alert_silenced_by"] = strings.Join(a.Status.SilencedBy, ",")
+		}
+
 		k, v := pairs(a.Labels)
 
 		ch <- prometheus.MustNewConstMetric(
