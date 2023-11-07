@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	alertscollector "github.com/bastjan/alerts_exporter/internal/alerts_collector"
+	alertscollector "github.com/appuio/alerts_exporter/internal/alerts_collector"
 	"github.com/prometheus/alertmanager/api/v2/client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

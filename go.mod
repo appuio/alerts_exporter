@@ -1,4 +1,4 @@
-module github.com/bastjan/alerts_exporter
+module github.com/appuio/alerts_exporter
 
 go 1.21.3
 
