@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go test && go build -o alerts_exporter
+RUN make all
 
 FROM debian:bookworm-slim
 
