@@ -3,6 +3,7 @@ module github.com/appuio/alerts_exporter
 go 1.21.3
 
 require (
+	github.com/go-openapi/runtime v0.26.0
 	github.com/prometheus/alertmanager v0.26.0
 	github.com/prometheus/client_golang v1.17.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
@@ -19,7 +20,6 @@ require (
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.20.0 // indirect
 	github.com/go-openapi/loads v0.21.2 // indirect
-	github.com/go-openapi/runtime v0.26.0 // indirect
 	github.com/go-openapi/spec v0.20.8 // indirect
 	github.com/go-openapi/strfmt v0.21.7 // indirect
 	github.com/go-openapi/swag v0.22.3 // indirect
