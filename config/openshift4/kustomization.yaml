@@ -1,0 +1,6 @@
+bases:
+- ../default
+
+patchesStrategicMerge:
+# Protect the /metrics endpoint by putting it behind auth.
+- exporter_openshift_patch.yaml

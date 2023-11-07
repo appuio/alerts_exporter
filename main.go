@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 
@@ -12,6 +13,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+var listenAddr string
 
 var host string
 var withInhibited, withSilenced, withUnprocessed, withActive bool
@@ -23,6 +26,8 @@ var useTLS bool
 var bearerToken string
 
 func main() {
+	flag.StringVar(&listenAddr, "listen-addr", ":8080", "The addr to listen on")
+
 	flag.StringVar(&host, "host", "localhost:9093", "The host of the Alertmanager")
 
 	flag.BoolVar(&useTLS, "tls", false, "Use TLS when connecting to Alertmanager")
@@ -85,8 +90,9 @@ func main() {
 	// Expose metrics and custom registry via an HTTP server
 	// using the HandleFor function. "/metrics" is the usual endpoint for that.
 	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
-	log.Println("Listening on `:8080/metrics`")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.Handle("/readyz", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { io.WriteString(w, "ok") }))
+	log.Printf("Listening on `%s`", listenAddr)
+	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
 
 type stringSliceFlag []string
