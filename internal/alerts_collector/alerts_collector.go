@@ -5,7 +5,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/prometheus/alertmanager/api/v2/client"
 	"github.com/prometheus/alertmanager/api/v2/client/alert"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/exp/slices"
@@ -14,14 +13,14 @@ import (
 func newDesc(labels []string) *prometheus.Desc {
 	return prometheus.NewDesc(
 		"alerts_exporter_alerts",
-		"Alertmanager alerts",
+		"Alerts queried from the Alertmanager API. Alert state can be found in the '_alerts_exporter_alert_state' label.",
 		labels,
 		nil,
 	)
 }
 
 type AlertsCollector struct {
-	API *client.AlertmanagerAPI
+	AlertService alert.ClientService
 
 	WithInhibited, WithSilenced, WithUnprocessed, WithActive *bool
 
@@ -42,7 +41,7 @@ func (o *AlertsCollector) Collect(ch chan<- prometheus.Metric) {
 		WithInhibited(o.WithInhibited).
 		WithFilter(o.Filters)
 
-	as, err := o.API.Alert.GetAlerts(p)
+	as, err := o.AlertService.GetAlerts(p)
 
 	if err != nil {
 		ch <- prometheus.NewInvalidMetric(newDesc([]string{}), err)
@@ -51,14 +50,16 @@ func (o *AlertsCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, a := range as.Payload {
-		if a.Status.State != nil {
-			a.Labels["_alerts_exporter_alert_status"] = *a.Status.State
-		}
-		if len(a.Status.InhibitedBy) > 0 {
-			a.Labels["_alerts_exporter_alert_inhibited_by"] = strings.Join(a.Status.InhibitedBy, ",")
-		}
-		if len(a.Status.SilencedBy) > 0 {
-			a.Labels["_alerts_exporter_alert_silenced_by"] = strings.Join(a.Status.SilencedBy, ",")
+		if a.Status != nil {
+			if a.Status.State != nil {
+				a.Labels["_alerts_exporter_alert_state"] = *a.Status.State
+			}
+			if len(a.Status.InhibitedBy) > 0 {
+				a.Labels["_alerts_exporter_alert_inhibited_by"] = strings.Join(a.Status.InhibitedBy, ",")
+			}
+			if len(a.Status.SilencedBy) > 0 {
+				a.Labels["_alerts_exporter_alert_silenced_by"] = strings.Join(a.Status.SilencedBy, ",")
+			}
 		}
 
 		k, v := pairs(a.Labels)
