@@ -1,6 +1,6 @@
 module github.com/appuio/alerts_exporter
 
-go 1.21.3
+go 1.21.4
 
 require (
 	github.com/go-openapi/runtime v0.26.0
