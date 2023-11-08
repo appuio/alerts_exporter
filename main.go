@@ -73,7 +73,7 @@ func main() {
 	reg := prometheus.NewRegistry()
 
 	reg.MustRegister(&alertscollector.AlertsCollector{
-		API: ac,
+		AlertService: ac.Alert,
 
 		WithActive:      &withActive,
 		WithSilenced:    &withSilenced,
