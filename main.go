@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 
@@ -101,7 +100,6 @@ func main() {
 	// Expose metrics and custom registry via an HTTP server
 	// using the HandleFor function. "/metrics" is the usual endpoint for that.
 	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
-	http.Handle("/readyz", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { io.WriteString(w, "ok") }))
 	log.Printf("Listening on `%s`", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }

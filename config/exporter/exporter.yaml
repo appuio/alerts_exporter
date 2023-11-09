@@ -47,12 +47,6 @@ spec:
           capabilities:
             drop:
               - "ALL"
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
         resources:
           limits:
             cpu: 100m
