@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: alerts-exporter
+    app.kubernetes.io/name: namespace
+    app.kubernetes.io/instance: exporter
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/created-by: alerts-exporter
+    app.kubernetes.io/part-of: alerts-exporter
+    app.kubernetes.io/managed-by: kustomize
+  name: alerts-exporter
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alerts-exporter
+  labels:
+    control-plane: alerts-exporter
+    app.kubernetes.io/name: deployment
+    app.kubernetes.io/instance: exporter
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/created-by: alerts-exporter
+    app.kubernetes.io/part-of: alerts-exporter
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  selector:
+    matchLabels:
+      control-plane: alerts-exporter
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: exporter
+      labels:
+        control-plane: alerts-exporter
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: exporter
+        image: ghcr.io/appuio/alerts_exporter:latest
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - "ALL"
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+      serviceAccountName: alerts-exporter
+      terminationGracePeriodSeconds: 10

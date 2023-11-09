@@ -1,0 +1,10 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: exporter-role
+rules:
+- nonResourceURLs:
+  - /api/v2/alerts
+  verbs:
+  - get

@@ -1,0 +1,11 @@
+# Adds namespace to all resources.
+namespace: alerts-exporter
+
+bases:
+- ../rbac
+- ../exporter
+- ../prometheus
+
+patchesStrategicMerge:
+# Protect the /metrics endpoint by putting it behind auth.
+- exporter_auth_proxy_patch.yaml

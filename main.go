@@ -7,11 +7,14 @@ import (
 	"net/http"
 
 	alertscollector "github.com/appuio/alerts_exporter/internal/alerts_collector"
+	"github.com/appuio/alerts_exporter/internal/saauth"
 	openapiclient "github.com/go-openapi/runtime/client"
 	alertmanagerclient "github.com/prometheus/alertmanager/api/v2/client"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+var listenAddr string
 
 var host string
 var withInhibited, withSilenced, withUnprocessed, withActive bool
@@ -21,8 +24,11 @@ var tlsCert, tlsCertKey, tlsCaCert, tlsServerName string
 var tlsInsecure bool
 var useTLS bool
 var bearerToken string
+var k8sBearerTokenAuth bool
 
 func main() {
+	flag.StringVar(&listenAddr, "listen-addr", ":8080", "The addr to listen on")
+
 	flag.StringVar(&host, "host", "localhost:9093", "The host of the Alertmanager")
 
 	flag.BoolVar(&useTLS, "tls", false, "Use TLS when connecting to Alertmanager")
@@ -33,6 +39,7 @@ func main() {
 	flag.BoolVar(&tlsInsecure, "insecure", false, "Disable TLS host verification")
 
 	flag.StringVar(&bearerToken, "bearer-token", "", "Bearer token to use for authentication")
+	flag.BoolVar(&k8sBearerTokenAuth, "k8s-bearer-token-auth", false, "Use Kubernetes service account bearer token for authentication")
 
 	flag.BoolVar(&withActive, "with-active", true, "Query for active alerts")
 	flag.BoolVar(&withInhibited, "with-inhibited", true, "Query for inhibited alerts")
@@ -67,6 +74,14 @@ func main() {
 	if bearerToken != "" {
 		rt.DefaultAuthentication = openapiclient.BearerToken(bearerToken)
 	}
+	if k8sBearerTokenAuth {
+		sa, err := saauth.NewServiceAccountAuthInfoWriter("", 0)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer sa.Stop()
+		rt.DefaultAuthentication = sa
+	}
 
 	ac := alertmanagerclient.New(rt, nil)
 
@@ -85,8 +100,8 @@ func main() {
 	// Expose metrics and custom registry via an HTTP server
 	// using the HandleFor function. "/metrics" is the usual endpoint for that.
 	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
-	log.Println("Listening on `:8080/metrics`")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf("Listening on `%s`", listenAddr)
+	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
 
 type stringSliceFlag []string

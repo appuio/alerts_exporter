@@ -1,0 +1,27 @@
+# This patch inject a sidecar container which is a HTTP proxy for the
+# exporter, it performs RBAC authorization against the Kubernetes API using SubjectAccessReviews.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alerts-exporter
+spec:
+  template:
+    spec:
+      containers:
+      - name: exporter
+        args:
+        - --listen-addr=127.0.0.1:8080
+        - --tls
+        - --host=alertmanager-operated.openshift-monitoring.svc.cluster.local:9095
+        - --tls-server-name=alertmanager-main.openshift-monitoring.svc.cluster.local
+        - --k8s-bearer-token-auth
+        - --tls-ca-cert=/etc/ssl/certs/serving-certs/service-ca.crt
+        volumeMounts:
+          - mountPath: /etc/ssl/certs/serving-certs/
+            name: ca-bundle
+            readOnly: true
+      volumes:
+        - configMap:
+            defaultMode: 288
+            name: openshift-service-ca.crt
+          name: ca-bundle
