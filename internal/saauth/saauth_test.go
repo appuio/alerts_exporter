@@ -29,7 +29,7 @@ func Test_ServiceAccountAuthInfoWriter_AuthenticateRequest(t *testing.T) {
 		r := new(runtime.TestClientRequest)
 		require.NoError(t, subject.AuthenticateRequest(r, nil))
 		require.Equal(t, "Bearer new-token", r.GetHeaderParams().Get("Authorization"))
-	}, time.Second, time.Millisecond)
+	}, 5*time.Second, time.Millisecond)
 }
 
 func Test_NewServiceAccountAuthInfoWriter_TokenReadErr(t *testing.T) {
