@@ -8,6 +8,9 @@ spec:
   template:
     spec:
       containers:
+      - name: exporter
+        args:
+        - "--listen-addr=127.0.0.1:8080"
       - name: kube-rbac-proxy
         securityContext:
           allowPrivilegeEscalation: false
@@ -31,6 +34,3 @@ spec:
           requests:
             cpu: 10m
             memory: 64Mi
-      - name: exporter
-        args:
-        - "--listen-addr=127.0.0.1:8080"
