@@ -11,7 +11,7 @@ require (
 	github.com/prometheus/alertmanager v0.27.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/exp v0.0.0-20240531132922-fd00a4e0eefc
+	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8
 )
 
 require (
@@ -43,10 +43,10 @@ require (
 	go.opentelemetry.io/otel v1.27.0 // indirect
 	go.opentelemetry.io/otel/metric v1.27.0 // indirect
 	go.opentelemetry.io/otel/trace v1.27.0 // indirect
-	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/mod v0.18.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/tools v0.21.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/tools v0.22.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
