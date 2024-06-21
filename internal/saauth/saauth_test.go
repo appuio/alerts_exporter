@@ -27,8 +27,8 @@ func Test_ServiceAccountAuthInfoWriter_AuthenticateRequest(t *testing.T) {
 	require.NoError(t, os.WriteFile(tokenFile, []byte("new-token"), 0644))
 	require.EventuallyWithT(t, func(t *assert.CollectT) {
 		r := new(runtime.TestClientRequest)
-		require.NoError(t, subject.AuthenticateRequest(r, nil))
-		require.Equal(t, "Bearer new-token", r.GetHeaderParams().Get("Authorization"))
+		assert.NoError(t, subject.AuthenticateRequest(r, nil))
+		assert.Equal(t, "Bearer new-token", r.GetHeaderParams().Get("Authorization"))
 	}, 5*time.Second, time.Millisecond)
 }
 
