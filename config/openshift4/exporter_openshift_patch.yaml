@@ -11,6 +11,7 @@ spec:
       - name: exporter
         args:
         - --listen-addr=127.0.0.1:8080
+        - --health-listen-addr=$(POD_IP):8081
         - --tls
         - --host=alertmanager-operated.openshift-monitoring.svc.cluster.local:9095
         - --tls-server-name=alertmanager-main.openshift-monitoring.svc.cluster.local
