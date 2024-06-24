@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"sync"
 
 	alertscollector "github.com/appuio/alerts_exporter/internal/alerts_collector"
 	"github.com/appuio/alerts_exporter/internal/healthcheck"
@@ -15,7 +19,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var listenAddr string
+var listenAddr, healthListenAddr string
 
 var host string
 var withInhibited, withSilenced, withUnprocessed, withActive bool
@@ -29,6 +33,7 @@ var k8sBearerTokenAuth bool
 
 func main() {
 	flag.StringVar(&listenAddr, "listen-addr", ":8080", "The addr to listen on")
+	flag.StringVar(&healthListenAddr, "health-listen-addr", ":8081", "The addr to listen on for the health check endpoint.")
 
 	flag.StringVar(&host, "host", "localhost:9093", "The host of the Alertmanager")
 
@@ -98,12 +103,48 @@ func main() {
 		Filters:         filters,
 	})
 
-	// Expose metrics and custom registry via an HTTP server
-	// using the HandleFor function. "/metrics" is the usual endpoint for that.
-	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
-	http.HandleFunc("/healthz", healthcheck.HealthCheck{GeneralService: ac.General}.HandleHealthz)
-	log.Printf("Listening on `%s`", listenAddr)
-	log.Fatal(http.ListenAndServe(listenAddr, nil))
+	msm := http.NewServeMux()
+	msm.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
+
+	hsm := http.NewServeMux()
+	hsm.HandleFunc("/healthz", healthcheck.HealthCheck{GeneralService: ac.General}.HandleHealthz)
+
+	ms := &http.Server{
+		Addr:    listenAddr,
+		Handler: msm,
+	}
+
+	hs := &http.Server{
+		Addr:    healthListenAddr,
+		Handler: hsm,
+	}
+
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	go func() {
+		defer cancel()
+		log.Printf("Metrics: Listening on `%s`", listenAddr)
+		log.Println("Metrics:", ms.ListenAndServe())
+	}()
+	go func() {
+		defer cancel()
+		log.Printf("Healthz: Listening on `%s`", healthListenAddr)
+		log.Println("Healthz:", hs.ListenAndServe())
+	}()
+
+	var waitShutdown sync.WaitGroup
+	waitShutdown.Add(2)
+	go func() {
+		defer waitShutdown.Done()
+		<-ctx.Done()
+		ms.Shutdown(context.Background())
+	}()
+	go func() {
+		defer waitShutdown.Done()
+		<-ctx.Done()
+		hs.Shutdown(context.Background())
+	}()
+
+	waitShutdown.Wait()
 }
 
 type stringSliceFlag []string

@@ -57,7 +57,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /healthz
-            port: 8080
+            port: 8081
           periodSeconds: 20
           initialDelaySeconds: 15
           timeoutSeconds: 3
