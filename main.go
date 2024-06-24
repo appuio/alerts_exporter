@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	alertscollector "github.com/appuio/alerts_exporter/internal/alerts_collector"
+	"github.com/appuio/alerts_exporter/internal/healthcheck"
 	"github.com/appuio/alerts_exporter/internal/saauth"
 	openapiclient "github.com/go-openapi/runtime/client"
 	alertmanagerclient "github.com/prometheus/alertmanager/api/v2/client"
@@ -100,6 +101,7 @@ func main() {
 	// Expose metrics and custom registry via an HTTP server
 	// using the HandleFor function. "/metrics" is the usual endpoint for that.
 	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{Registry: reg}))
+	http.HandleFunc("/healthz", healthcheck.HealthCheck{GeneralService: ac.General}.HandleHealthz)
 	log.Printf("Listening on `%s`", listenAddr)
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }
