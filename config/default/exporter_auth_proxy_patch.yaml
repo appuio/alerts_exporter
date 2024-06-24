@@ -9,8 +9,15 @@ spec:
     spec:
       containers:
       - name: exporter
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
         args:
         - "--listen-addr=127.0.0.1:8080"
+        - "--health-listen-addr=$(POD_IP):8081"
       - name: kube-rbac-proxy
         securityContext:
           allowPrivilegeEscalation: false
