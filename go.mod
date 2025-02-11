@@ -2,7 +2,7 @@ module github.com/appuio/alerts_exporter
 
 go 1.22
 
-toolchain go1.23.5
+toolchain go1.24.0
 
 require (
 	github.com/go-openapi/runtime v0.28.0
