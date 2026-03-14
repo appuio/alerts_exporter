@@ -1,8 +1,6 @@
 module github.com/appuio/alerts_exporter
 
-go 1.22
-
-toolchain go1.23.5
+go 1.25.0
 
 require (
 	github.com/go-openapi/runtime v0.28.0
@@ -11,7 +9,7 @@ require (
 	github.com/prometheus/alertmanager v0.27.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8
+	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90
 )
 
 require (
@@ -43,10 +41,10 @@ require (
 	go.opentelemetry.io/otel v1.27.0 // indirect
 	go.opentelemetry.io/otel/metric v1.27.0 // indirect
 	go.opentelemetry.io/otel/trace v1.27.0 // indirect
-	golang.org/x/mod v0.18.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
-	golang.org/x/tools v0.22.0 // indirect
+	golang.org/x/mod v0.34.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/tools v0.43.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
