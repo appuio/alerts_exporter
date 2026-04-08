@@ -6,7 +6,7 @@ require (
 	github.com/go-openapi/runtime v0.29.3
 	github.com/go-openapi/strfmt v0.26.1
 	github.com/golang/mock v1.6.0
-	github.com/prometheus/alertmanager v0.31.1
+	github.com/prometheus/alertmanager v0.32.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90
